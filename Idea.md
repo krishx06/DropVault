@@ -96,15 +96,59 @@ The following principles guide the project:
 
 ---
 
-## 5. Scope Control (Intentional Decisions)
+## 5. Initial Scope & Key Features (v1)
 
-To keep the project realistic and achievable, certain features are intentionally deferred:
-- Advanced inventory reservation
-- Dynamic pricing
-- Recommendation engines
+The first version of DropVault focuses on delivering a **fully functional, end-to-end drop-based e-commerce workflow** while keeping the scope realistic and implementation-focused.
+
+### 5.1 Core Functional Scope
+
+The v1 implementation of DropVault will include:
+
+#### Customer Features
+- View all products (active, upcoming, archived)
+- Browse upcoming and live drops
+- View drop countdown timers
+- Purchase products during live drops
+- View order history and order status
+- Submit product reviews after purchase
+
+#### Seller Features
+- Seller registration and approval flow
+- Create product listings (draft state)
+- Schedule drops with start/end time and stock quantity
+- Monitor drop status and remaining inventory
+- View orders generated from drops
+
+#### Admin Features
+- Approve or reject seller onboarding requests
+- Moderate product listings
+- Moderate user reviews
+- Manage user access and roles
+- View platform activity logs
+
+---
+
+### 5.2 System-Level Capabilities
+
+- Drop lifecycle management (Upcoming → Live → Ended)
+- Role-based access control (Customer, Seller, Admin)
+- Transactional stock deduction to prevent overselling
+- Real-time drop status and stock updates via WebSockets
+- Time-driven system behavior (scheduled drop activation)
+
+---
+
+### 5.3 Explicit Non-Goals (v1)
+
+The following features are intentionally **out of scope for the first version** and may be considered future enhancements:
+
 - Payment gateway integration
+- Advanced inventory reservation and queuing
+- AI-based recommendations or dynamic pricing
+- Logistics and shipping integrations
 
-These are acknowledged as future extensions, not ignored problems.
+These decisions help maintain focus on **system correctness and architecture** rather than feature volume.
+
 
 ---
 
