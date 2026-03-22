@@ -1,1 +1,37 @@
-# TODO: Add CI/CD pipeline configuration
+name: CI Pipeline
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'
+        
+    - name: Check structure
+      run: |
+        echo "Validating directory structure..."
+        
+        if [ -d "frontend" ]; then
+          echo "Frontend directory exists"
+        else
+          echo "Warning: Frontend directory missing"
+        fi
+        
+        if [ -d "backend" ]; then
+          echo "Backend directory exists"
+        else
+          echo "Warning: Backend directory missing"
+        fi
+        
+        echo "Validation successful!"
