@@ -20,4 +20,7 @@ router.patch('/sellers/:id/status', updateSellerStatusHandler);
 router.get('/users', getAllUsersHandler);
 router.patch('/users/:id/deactivate', deactivateUserHandler);
 
+import { approveProductHandler } from '../products/product.controller';
+router.patch('/products/:id/approve', approveProductHandler);
+
 export default router;
