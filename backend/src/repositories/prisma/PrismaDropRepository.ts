@@ -1,5 +1,5 @@
 import prisma from '../../config/db';
-import { Drop } from '@prisma/client';
+import { Drop, DropStatus } from '@prisma/client';
 import { IDropRepository, DropWithProduct } from '../interfaces/IDropRepository';
 import { CreateDropInput, UpdateDropInput } from '../../modules/drops/drop.types';
 
@@ -38,6 +38,22 @@ export class PrismaDropRepository implements IDropRepository {
         startTime: { lte: now },
         endTime: { gt: now },
       },
+      include: { product: true },
+      orderBy: { startTime: 'asc' },
+    });
+  }
+
+  async findByStatus(status: DropStatus): Promise<DropWithProduct[]> {
+    return prisma.drop.findMany({
+      where: { status },
+      include: { product: true },
+      orderBy: { startTime: 'asc' },
+    });
+  }
+
+  async findUpcomingAndLive(): Promise<DropWithProduct[]> {
+    return prisma.drop.findMany({
+      where: { status: { in: ['UPCOMING', 'LIVE'] } },
       include: { product: true },
       orderBy: { startTime: 'asc' },
     });

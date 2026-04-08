@@ -1,4 +1,4 @@
-import { Drop, Product } from '@prisma/client';
+import { Drop, DropStatus, Product } from '@prisma/client';
 import { CreateDropInput, UpdateDropInput } from '../../modules/drops/drop.types';
 
 export interface DropWithProduct extends Drop {
@@ -10,5 +10,7 @@ export interface IDropRepository {
   findById(id: string): Promise<DropWithProduct | null>;
   findBySellerId(sellerId: string): Promise<DropWithProduct[]>;
   findLiveDrops(): Promise<DropWithProduct[]>;
+  findByStatus(status: DropStatus): Promise<DropWithProduct[]>;
+  findUpcomingAndLive(): Promise<DropWithProduct[]>;
   update(id: string, data: UpdateDropInput): Promise<Drop>;
 }

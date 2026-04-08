@@ -36,6 +36,13 @@ export class PrismaProductRepository implements IProductRepository {
     });
   }
 
+  async findApproved(): Promise<Product[]> {
+    return prisma.product.findMany({
+      where: { isApproved: true, status: 'ACTIVE' },
+      orderBy: { createdAt: 'desc' },
+    });
+  }
+
   async updateApproval(id: string, isApproved: boolean): Promise<Product> {
     return prisma.product.update({
       where: { id },
