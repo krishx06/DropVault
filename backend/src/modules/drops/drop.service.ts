@@ -1,14 +1,30 @@
-import { Drop } from '@prisma/client';
+import { Drop, DropStatus } from '@prisma/client';
 import { PrismaDropRepository } from '../../repositories/prisma/PrismaDropRepository';
 import { PrismaProductRepository } from '../../repositories/prisma/PrismaProductRepository';
 import { PrismaSellerRepository } from '../../repositories/prisma/PrismaSellerRepository';
 import { CreateDropInput, UpdateDropInput } from './drop.types';
+import { DropWithProduct } from '../../repositories/interfaces/IDropRepository';
 import { BadRequestError, NotFoundError, ForbiddenError } from '../../utils/AppError';
 import { logger } from '../../utils/logger';
 
 const dropRepository = new PrismaDropRepository();
 const productRepository = new PrismaProductRepository();
 const sellerRepository = new PrismaSellerRepository();
+
+export async function getPublicDrops(status?: string): Promise<DropWithProduct[]> {
+  if (status) {
+    return dropRepository.findByStatus(status as DropStatus);
+  }
+  return dropRepository.findUpcomingAndLive();
+}
+
+export async function getDropById(dropId: string): Promise<DropWithProduct> {
+  const drop = await dropRepository.findById(dropId);
+  if (!drop) {
+    throw NotFoundError('Drop not found');
+  }
+  return drop;
+}
 
 export async function createDrop(
   userId: string,

@@ -8,9 +8,6 @@ import { logger } from '../../utils/logger';
 const productRepository = new PrismaProductRepository();
 const sellerRepository = new PrismaSellerRepository();
 
-/**
- * Creates a product for the currently authenticated seller.
- */
 export async function createProduct(
   userId: string,
   input: Omit<CreateProductInput, 'sellerId'>,
@@ -38,9 +35,6 @@ export async function createProduct(
   return product;
 }
 
-/**
- * Fetches all products owned by a specific user (seller).
- */
 export async function getMyProducts(userId: string): Promise<Product[]> {
   const seller = await sellerRepository.findByUserId(userId);
   if (!seller) {
@@ -50,10 +44,6 @@ export async function getMyProducts(userId: string): Promise<Product[]> {
   return productRepository.findBySellerId(seller.id);
 }
 
-/**
- * Update an existing product.
- * Sellers can only update their own products.
- */
 export async function updateProduct(
   userId: string,
   productId: string,
@@ -78,9 +68,18 @@ export async function updateProduct(
   return updatedProduct;
 }
 
-/**
- * Admin action: Approve or reject a product launch.
- */
+export async function getApprovedProducts(): Promise<Product[]> {
+  return productRepository.findApproved();
+}
+
+export async function getProductById(productId: string): Promise<Product> {
+  const product = await productRepository.findById(productId);
+  if (!product) {
+    throw NotFoundError('Product not found');
+  }
+  return product;
+}
+
 export async function updateProductApproval(
   productId: string,
   isApproved: boolean,

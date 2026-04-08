@@ -5,17 +5,17 @@ import {
   createProductHandler,
   getMyProductsHandler,
   updateProductHandler,
+  getApprovedProductsHandler,
+  getProductByIdHandler,
 } from './product.controller';
 
 const router = Router();
 
-// Seller Routes
-router.use(authenticate, authorize('SELLER'));
+router.post('/', authenticate, authorize('SELLER'), createProductHandler);
+router.get('/me', authenticate, authorize('SELLER'), getMyProductsHandler);
+router.patch('/:id', authenticate, authorize('SELLER'), updateProductHandler);
 
-router.post('/', createProductHandler);
-router.get('/me', getMyProductsHandler);
-router.patch('/:id', updateProductHandler);
-
-// Note: Admin approval route will be wired into the /api/admin paths
+router.get('/', getApprovedProductsHandler);
+router.get('/:id', getProductByIdHandler);
 
 export default router;

@@ -45,6 +45,32 @@ export async function updateProductHandler(
   }
 }
 
+export async function getApprovedProductsHandler(
+  _req: Request,
+  res: Response,
+  next: NextFunction,
+): Promise<void> {
+  try {
+    const products = await productService.getApprovedProducts();
+    sendSuccess(res, products);
+  } catch (error) {
+    next(error);
+  }
+}
+
+export async function getProductByIdHandler(
+  req: Request,
+  res: Response,
+  next: NextFunction,
+): Promise<void> {
+  try {
+    const product = await productService.getProductById(req.params.id as string);
+    sendSuccess(res, product);
+  } catch (error) {
+    next(error);
+  }
+}
+
 export async function approveProductHandler(
   req: Request,
   res: Response,
