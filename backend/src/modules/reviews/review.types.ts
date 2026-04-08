@@ -1,1 +1,5 @@
-// review.types — type definitions and interfaces
+export interface CreateReviewInput {
+  productId: string;
+  rating: number;
+  comment?: string;
+}
