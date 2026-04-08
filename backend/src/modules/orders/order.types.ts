@@ -1,1 +1,4 @@
-// order.types — type definitions and interfaces
+export interface CreateOrderInput {
+  dropId: string;
+  quantity?: number;
+}
