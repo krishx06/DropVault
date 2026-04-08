@@ -4,6 +4,10 @@ import authRoutes from './modules/auth/auth.routes';
 import adminRoutes from './modules/admin/admin.routes';
 import productRoutes from './modules/products/product.routes';
 import dropRoutes from './modules/drops/drop.routes';
+import orderRoutes from './modules/orders/order.routes';
+import reviewRoutes from './modules/reviews/review.routes';
+import sellerRoutes from './modules/sellers/seller.routes';
+import userRoutes from './modules/users/user.routes';
 import { errorHandler } from './middlewares/error.middleware';
 import { sendError } from './utils/response';
 
@@ -24,6 +28,10 @@ app.use('/api/auth', authRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/products', productRoutes);
 app.use('/api/drops', dropRoutes);
+app.use('/api/orders', orderRoutes);
+app.use('/api/reviews', reviewRoutes);
+app.use('/api/sellers', sellerRoutes);
+app.use('/api/users', userRoutes);
 
 app.use((_req, res) => {
   sendError(res, 'Route not found', 404);
