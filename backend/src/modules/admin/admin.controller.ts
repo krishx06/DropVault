@@ -57,6 +57,19 @@ export async function getAllUsersHandler(
   }
 }
 
+export async function getPendingReviewsHandler(
+  _req: Request,
+  res: Response,
+  next: NextFunction,
+): Promise<void> {
+  try {
+    const reviews = await adminService.getPendingReviews();
+    sendSuccess(res, reviews, 'Pending reviews retrieved');
+  } catch (error) {
+    next(error);
+  }
+}
+
 export async function deactivateUserHandler(
   req: Request,
   res: Response,

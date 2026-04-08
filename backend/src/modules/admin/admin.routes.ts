@@ -23,4 +23,9 @@ router.patch('/users/:id/deactivate', deactivateUserHandler);
 import { approveProductHandler } from '../products/product.controller';
 router.patch('/products/:id/approve', approveProductHandler);
 
+import { moderateReviewHandler } from '../reviews/review.controller';
+import { getPendingReviewsHandler } from './admin.controller';
+router.get('/reviews/pending', getPendingReviewsHandler);
+router.patch('/reviews/:id/status', moderateReviewHandler);
+
 export default router;

@@ -53,6 +53,12 @@ export async function getAllUsers(): Promise<SafeUser[]> {
   return userRepository.findAll();
 }
 
+export async function getPendingReviews() {
+  const { PrismaReviewRepository } = await import('../../repositories/prisma/PrismaReviewRepository');
+  const reviewRepository = new PrismaReviewRepository();
+  return reviewRepository.findPending();
+}
+
 export async function deactivateUser(userId: string): Promise<void> {
   const user = await userRepository.findById(userId);
   if (!user) {
