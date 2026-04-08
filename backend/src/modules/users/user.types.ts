@@ -1,1 +1,3 @@
-// user.types — type definitions and interfaces
+export interface UpdateProfileInput {
+  name?: string;
+}
