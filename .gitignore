@@ -24,3 +24,6 @@ src/generated/
 # Logs
 *.log
 npm-debug.log*
+
+# stitch designs
+stitch-designs
