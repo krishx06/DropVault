@@ -1,6 +1,7 @@
 import { Routes, Route, Navigate } from 'react-router-dom'
 import Login from '../pages/Auth/Login'
 import Register from '../pages/Auth/Register'
+import Home from '../pages/Home/Home'
 import { useAuthStore } from '../store/auth.store'
 
 function HomeRedirect() {
@@ -8,7 +9,7 @@ function HomeRedirect() {
   if (!user) return <Navigate to="/login" replace />
   if (user.role === 'ADMIN') return <Navigate to="/admin" replace />
   if (user.role === 'SELLER') return <Navigate to="/seller" replace />
-  return <div className="min-h-screen flex items-center justify-center text-stone-500">Home page coming soon</div>
+  return <Home />
 }
 
 export default function AppRoutes() {
