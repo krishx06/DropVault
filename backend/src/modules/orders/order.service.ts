@@ -6,6 +6,7 @@ import { CreateOrderInput } from './order.types';
 import { validateCreateOrderInput } from './order.validators';
 import { OrderWithDetails } from '../../repositories/interfaces/IOrderRepository';
 import { BadRequestError, NotFoundError, ForbiddenError } from '../../utils/AppError';
+import { canTransition } from './order.states';
 import { logger } from '../../utils/logger';
 
 const orderRepository = new PrismaOrderRepository();
@@ -61,6 +62,39 @@ export async function getMyOrders(userId: string): Promise<OrderWithDetails[]> {
   return orderRepository.findByUserId(userId);
 }
 
+export async function getOrdersForSeller(userId: string) {
+  const seller = await prisma.seller.findUnique({ where: { userId } });
+  if (!seller) throw ForbiddenError('Seller not found');
+
+  return prisma.order.findMany({
+    where: { drop: { product: { sellerId: seller.id } } },
+    include: {
+      drop: { include: { product: true } },
+      user: { select: { id: true, name: true, email: true } },
+    },
+    orderBy: { createdAt: 'desc' },
+  });
+}
+
+export async function confirmOrderBySeller(userId: string, orderId: string): Promise<Order> {
+  const seller = await prisma.seller.findUnique({ where: { userId } });
+  if (!seller) throw ForbiddenError('Seller not found');
+
+  const order = await orderRepository.findById(orderId);
+  if (!order) throw NotFoundError('Order not found');
+
+  if (order.drop.product.sellerId !== seller.id) {
+    throw ForbiddenError('This order does not belong to your drop');
+  }
+
+  if (!canTransition(order.status, 'CONFIRMED')) {
+    throw BadRequestError('Order cannot be confirmed in its current state');
+  }
+
+  logger.info(`Order confirmed by seller: orderId=${orderId}, sellerId=${seller.id}`);
+  return orderRepository.updateStatus(orderId, 'CONFIRMED');
+}
+
 export async function cancelOrder(userId: string, orderId: string): Promise<Order> {
   const order = await orderRepository.findById(orderId);
   if (!order) {
@@ -75,10 +109,19 @@ export async function cancelOrder(userId: string, orderId: string): Promise<Orde
     throw BadRequestError('Only pending orders can be cancelled');
   }
 
+  const drop = await dropRepository.findById(order.dropId);
+
+  const newSold = (drop?.sold ?? 0) - order.quantity;
+  const isWithinWindow = drop && new Date() < new Date(drop.endTime);
+  const shouldRevertToLive = drop?.status === 'SOLD_OUT' && newSold < (drop?.stock ?? 0) && isWithinWindow;
+
   await prisma.$transaction([
     prisma.drop.update({
       where: { id: order.dropId },
-      data: { sold: { decrement: order.quantity } },
+      data: {
+        sold: { decrement: order.quantity },
+        ...(shouldRevertToLive ? { status: 'LIVE' } : {}),
+      },
     }),
     prisma.order.update({
       where: { id: orderId },
