@@ -109,22 +109,9 @@ A fully functional, production-inspired e-commerce platform that:
 
 ---
 
-## Development Timeline  
+## Getting Started  
 
-**Phase 1**  
-- Backend setup and database schema design  
-
-**Phase 2**  
-- Authentication and role-based access control  
-
-**Phase 3**  
-- Seller onboarding and drop creation workflows  
-
-**Phase 4**  
-- Customer-facing drop browsing and real-time updates  
-
-**Phase 5**  
-- Cloud deployment and CI/CD pipeline integration  
+See [SETUP.md](./SETUP.md) for full local setup instructions including environment variables, database migration, and running tests.
 
 ---
 
