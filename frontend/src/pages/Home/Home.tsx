@@ -1,43 +1,12 @@
+import { useEffect, useState } from 'react'
 import { motion } from 'framer-motion'
 import { Link } from 'react-router-dom'
+import { getDrops } from '../../services/drop.service'
+import { getPublicSellers, type PublicSeller } from '../../services/seller.service'
+import type { Drop } from '../../types/drop.types'
 import Navbar from '../../components/common/Navbar'
 import Footer from '../../components/common/Footer'
 
-const MOCK_DROPS = [
-  {
-    id: '1',
-    label: 'LIVE NOW',
-    live: true,
-    title: 'Maison Noir SS25',
-    subtitle: 'Structured silhouettes. Zero compromise.',
-    price: '$420',
-    ends: '2h 14m left',
-    slots: 3,
-    image: 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?auto=format&fit=crop&w=800&q=80',
-  },
-  {
-    id: '2',
-    label: 'DROPPING SOON',
-    live: false,
-    title: 'Archive Selects Vol. 7',
-    subtitle: 'Sourced from private European estates.',
-    price: 'From $180',
-    ends: 'Tomorrow, 12:00 PM',
-    slots: 12,
-    image: 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?auto=format&fit=crop&w=800&q=80',
-  },
-  {
-    id: '3',
-    label: 'DROPPING SOON',
-    live: false,
-    title: 'Monochrome Edit',
-    subtitle: 'A study in restraint and intention.',
-    price: 'From $95',
-    ends: 'In 3 days',
-    slots: 24,
-    image: 'https://images.unsplash.com/photo-1556821840-3a63f15732ce?auto=format&fit=crop&w=800&q=80',
-  },
-]
 
 const FEATURED = {
   label: "The Curator's Choice",
@@ -50,81 +19,8 @@ const FEATURED = {
   image: 'https://images.unsplash.com/photo-1591047139829-d91aecb6caea?auto=format&fit=crop&w=900&q=80',
 }
 
-const PAST_DROPS = [
-  {
-    id: 'p1',
-    title: 'Atelier Blanc FW24',
-    units: 18,
-    soldIn: '9 min',
-    total: '$12,400',
-    image: 'https://images.unsplash.com/photo-1600185365926-3a2ce3cdb9eb?auto=format&fit=crop&w=600&q=80',
-  },
-  {
-    id: 'p2',
-    title: 'The Leather Edit',
-    units: 6,
-    soldIn: '4 min',
-    total: '$8,200',
-    image: 'https://images.unsplash.com/photo-1491553895911-0055eca6402d?auto=format&fit=crop&w=600&q=80',
-  },
-  {
-    id: 'p3',
-    title: 'Indigo Archive',
-    units: 32,
-    soldIn: '22 min',
-    total: '$5,760',
-    image: 'https://images.unsplash.com/photo-1552346154-21d32dc2e58a?auto=format&fit=crop&w=600&q=80',
-  },
-  {
-    id: 'p4',
-    title: 'Chrome Objects Vol. 2',
-    units: 10,
-    soldIn: '7 min',
-    total: '$9,900',
-    image: 'https://images.unsplash.com/photo-1585386959984-a4155224a1ad?auto=format&fit=crop&w=600&q=80',
-  },
-]
 
-const CATEGORIES = [
-  { label: 'Outerwear', count: 34 },
-  { label: 'Footwear', count: 61 },
-  { label: 'Accessories', count: 88 },
-  { label: 'Tailoring', count: 27 },
-  { label: 'Knitwear', count: 43 },
-  { label: 'Denim', count: 19 },
-  { label: 'Objects', count: 15 },
-  { label: 'Vintage', count: 52 },
-]
 
-const SELLERS = [
-  {
-    id: 's1',
-    initials: 'MN',
-    name: 'Maison Noir',
-    location: 'Paris, FR',
-    drops: 12,
-    rating: '4.97',
-    tag: 'Top Seller',
-  },
-  {
-    id: 's2',
-    initials: 'AK',
-    name: 'Archiv Keller',
-    location: 'Berlin, DE',
-    drops: 8,
-    rating: '4.93',
-    tag: 'Verified',
-  },
-  {
-    id: 's3',
-    initials: 'SH',
-    name: 'Studio Holt',
-    location: 'London, UK',
-    drops: 21,
-    rating: '5.00',
-    tag: 'Elite',
-  },
-]
 
 const STATS = [
   { value: '2,400+', label: 'Items curated' },
@@ -143,6 +39,53 @@ const itemVariants = {
 }
 
 export default function Home() {
+  const [activeDrops, setActiveDrops] = useState<Drop[]>([])
+  const [dropsLoading, setDropsLoading] = useState(true)
+  const [dropsArePast, setDropsArePast] = useState(false)
+  const [soldOutDrops, setSoldOutDrops] = useState<Drop[]>([])
+  const [sellers, setSellers] = useState<PublicSeller[]>([])
+
+  useEffect(() => {
+    async function fetchActive() {
+      try {
+        const [liveRes, upcomingRes] = await Promise.all([
+          getDrops('LIVE'),
+          getDrops('UPCOMING'),
+        ])
+        const active = [...liveRes.data.data, ...upcomingRes.data.data]
+        if (active.length > 0) {
+          setActiveDrops(active.slice(0, 3))
+        } else {
+          const [endedRes, soldOutRes] = await Promise.all([
+            getDrops('ENDED'),
+            getDrops('SOLD_OUT'),
+          ])
+          setActiveDrops([...endedRes.data.data, ...soldOutRes.data.data].slice(0, 3))
+          setDropsArePast(true)
+        }
+      } catch { /* fail silently */ } finally {
+        setDropsLoading(false)
+      }
+    }
+    fetchActive()
+
+    async function fetchSoldOut() {
+      try {
+        const [soldOutRes, endedRes] = await Promise.all([getDrops('SOLD_OUT'), getDrops('ENDED')])
+        setSoldOutDrops([...soldOutRes.data.data, ...endedRes.data.data].slice(0, 4))
+      } catch { /* fail silently */ }
+    }
+    fetchSoldOut()
+
+    async function fetchSellers() {
+      try {
+        const res = await getPublicSellers()
+        setSellers(res.data.data)
+      } catch { /* fail silently */ }
+    }
+    fetchSellers()
+  }, [])
+
   return (
     <div className="min-h-screen bg-[#fbf9f9]">
       <Navbar />
@@ -195,51 +138,17 @@ export default function Home() {
           </div>
         </section>
 
-        <Divider />
-
-
-        <section id="categories" className="py-14">
-          <div className="max-w-6xl mx-auto px-6 mb-8">
-            <p className="text-xs uppercase tracking-[0.25em] font-bold text-stone-400 mb-1">Shop by</p>
-            <h2 className="text-3xl font-black tracking-tighter text-stone-950">Categories</h2>
-          </div>
-
-          <div className="max-w-6xl mx-auto px-6">
-            <motion.div
-              variants={containerVariants}
-              initial="hidden"
-              whileInView="show"
-              viewport={{ once: true }}
-              className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-8 gap-3"
-            >
-              {CATEGORIES.map((cat) => (
-                <motion.button
-                  key={cat.label}
-                  variants={itemVariants}
-                  className="group flex flex-col items-start gap-1.5 border border-stone-100 bg-white rounded-lg px-5 py-6 hover:border-amber-700 hover:bg-amber-700 transition-all"
-                >
-                  <span className="text-base font-black tracking-tight text-stone-950 group-hover:text-white transition-colors">
-                    {cat.label}
-                  </span>
-                  <span className="text-[11px] uppercase tracking-widest text-stone-400 group-hover:text-amber-200 transition-colors">
-                    {cat.count} items
-                  </span>
-                </motion.button>
-              ))}
-            </motion.div>
-          </div>
-        </section>
-
-        <Divider />
 
 
         <section id="active-drops" className="max-w-6xl mx-auto px-6 py-18">
           <div className="flex items-end justify-between mb-10">
             <div>
               <p className="text-xs uppercase tracking-[0.25em] font-bold text-stone-400 mb-2">
-                Current & Upcoming
+                {dropsArePast ? 'Recently Ended' : 'Current & Upcoming'}
               </p>
-              <h2 className="text-4xl font-black tracking-tighter text-stone-950">Active Drops</h2>
+              <h2 className="text-4xl font-black tracking-tighter text-stone-950">
+                {dropsArePast ? 'Past Drops' : 'Active Drops'}
+              </h2>
             </div>
             <Link to="/drops" className="text-xs uppercase tracking-widest font-bold text-amber-700 hover:underline underline-offset-4 hidden sm:block">
               View All →
@@ -253,11 +162,23 @@ export default function Home() {
             viewport={{ once: true, margin: '-60px' }}
             className="grid grid-cols-1 md:grid-cols-3 gap-4"
           >
-            {MOCK_DROPS.map((drop) => (
-              <motion.div key={drop.id} variants={itemVariants}>
-                <DropCard drop={drop} />
-              </motion.div>
-            ))}
+            {dropsLoading
+              ? Array.from({ length: 3 }).map((_, i) => (
+                  <div key={i} className="border border-stone-100 bg-white rounded-xl overflow-hidden animate-pulse">
+                    <div className="h-56 bg-stone-100" />
+                    <div className="p-6 space-y-3">
+                      <div className="h-4 bg-stone-100 rounded w-3/4" />
+                      <div className="h-3 bg-stone-100 rounded w-full" />
+                      <div className="h-10 bg-stone-100 rounded mt-4" />
+                    </div>
+                  </div>
+                ))
+              : activeDrops.map((drop) => (
+                  <motion.div key={drop.id} variants={itemVariants}>
+                    <DropCard drop={drop} />
+                  </motion.div>
+                ))
+            }
           </motion.div>
         </section>
 
@@ -369,45 +290,58 @@ export default function Home() {
             viewport={{ once: true }}
             className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4"
           >
-            {PAST_DROPS.map((drop) => (
-              <motion.div
-                key={drop.id}
-                variants={itemVariants}
-                className="border border-stone-100 bg-white rounded-xl overflow-hidden"
-              >
-                <div className="relative h-40 bg-stone-900 overflow-hidden">
-                  <img
-                    src={drop.image}
-                    alt={drop.title}
-                    className="w-full h-full object-cover opacity-60 grayscale"
-                  />
-                  <div className="absolute inset-0 bg-linear-to-t from-black/60 to-transparent" />
-                  <div className="absolute top-3 left-3 bg-black/50 backdrop-blur-sm px-2.5 py-1 rounded">
-                    <span className="text-[9px] uppercase tracking-widest font-bold text-white/60 line-through">
-                      Sold Out
-                    </span>
-                  </div>
-                  <div className="absolute top-3 right-3 bg-black/50 backdrop-blur-sm px-2.5 py-1 rounded">
-                    <span className="text-[9px] uppercase tracking-widest font-bold text-white/60">
-                      {drop.units} units
-                    </span>
-                  </div>
-                </div>
-                <div className="p-5">
-                  <h3 className="text-base font-black tracking-tight text-stone-950 mb-4">{drop.title}</h3>
-                  <div className="flex items-end justify-between border-t border-stone-50 pt-4">
-                    <div>
-                      <p className="text-[10px] uppercase tracking-widest text-stone-400 mb-1">Sold in</p>
-                      <p className="text-base font-black text-amber-700">{drop.soldIn}</p>
+            {soldOutDrops.map((drop) => {
+              const gmv = drop.sold * drop.product.price
+              return (
+                <motion.div
+                  key={drop.id}
+                  variants={itemVariants}
+                  className="border border-stone-100 bg-white rounded-xl overflow-hidden"
+                >
+                  <Link to={`/drops/${drop.id}`}>
+                    <div className="relative h-40 bg-stone-900 overflow-hidden">
+                      {drop.product.imageUrl ? (
+                        <img
+                          src={drop.product.imageUrl}
+                          alt={drop.product.name}
+                          className="w-full h-full object-cover opacity-60 grayscale"
+                        />
+                      ) : (
+                        <div className="w-full h-full flex items-center justify-center">
+                          <span className="text-stone-600 text-xs uppercase tracking-widest">No image</span>
+                        </div>
+                      )}
+                      <div className="absolute inset-0 bg-linear-to-t from-black/60 to-transparent" />
+                      <div className="absolute top-3 left-3 bg-black/50 backdrop-blur-sm px-2.5 py-1 rounded">
+                        <span className="text-[9px] uppercase tracking-widest font-bold text-white/60">
+                          {drop.status === 'SOLD_OUT' ? 'Sold Out' : 'Ended'}
+                        </span>
+                      </div>
+                      <div className="absolute top-3 right-3 bg-black/50 backdrop-blur-sm px-2.5 py-1 rounded">
+                        <span className="text-[9px] uppercase tracking-widest font-bold text-white/60">
+                          {drop.sold} units
+                        </span>
+                      </div>
                     </div>
-                    <div className="text-right">
-                      <p className="text-[10px] uppercase tracking-widest text-stone-400 mb-1">Total GMV</p>
-                      <p className="text-base font-black text-stone-950">{drop.total}</p>
+                    <div className="p-5">
+                      <h3 className="text-base font-black tracking-tight text-stone-950 mb-4 line-clamp-1">
+                        {drop.product.name}
+                      </h3>
+                      <div className="flex items-end justify-between border-t border-stone-50 pt-4">
+                        <div>
+                          <p className="text-[10px] uppercase tracking-widest text-stone-400 mb-1">Units sold</p>
+                          <p className="text-base font-black text-amber-700">{drop.sold}</p>
+                        </div>
+                        <div className="text-right">
+                          <p className="text-[10px] uppercase tracking-widest text-stone-400 mb-1">Total GMV</p>
+                          <p className="text-base font-black text-stone-950">${gmv.toLocaleString()}</p>
+                        </div>
+                      </div>
                     </div>
-                  </div>
-                </div>
-              </motion.div>
-            ))}
+                  </Link>
+                </motion.div>
+              )
+            })}
           </motion.div>
         </section>
 
@@ -427,51 +361,52 @@ export default function Home() {
             </button>
           </div>
 
-          <motion.div
-            variants={containerVariants}
-            initial="hidden"
-            whileInView="show"
-            viewport={{ once: true }}
-            className="grid grid-cols-1 md:grid-cols-3 gap-4"
-          >
-            {SELLERS.map((seller) => (
-              <motion.div
-                key={seller.id}
-                variants={itemVariants}
-                className="group border border-stone-100 bg-white rounded-lg p-7 hover:border-stone-300 hover:shadow-md transition-all cursor-pointer"
-              >
-                <div className="flex items-start gap-4 mb-7">
-                  <div className="w-13 h-13 rounded-full bg-stone-950 flex items-center justify-center shrink-0">
-                    <span className="text-sm font-black tracking-tighter text-amber-500">{seller.initials}</span>
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2 mb-1">
-                      <h3 className="text-base font-black tracking-tight text-stone-950 truncate">{seller.name}</h3>
-                      <span className="text-[10px] uppercase tracking-widest font-bold text-amber-700 bg-amber-50 px-2 py-0.5 rounded">
-                        {seller.tag}
-                      </span>
+          {sellers.length === 0 ? (
+            <p className="text-sm text-stone-400">No approved sellers yet.</p>
+          ) : (
+            <motion.div
+              variants={containerVariants}
+              initial="hidden"
+              whileInView="show"
+              viewport={{ once: true }}
+              className="grid grid-cols-1 md:grid-cols-3 gap-4"
+            >
+              {sellers.map((seller) => {
+                const initials = seller.user.name.split(' ').map((w) => w[0]).join('').slice(0, 2).toUpperCase()
+                return (
+                  <motion.div
+                    key={seller.id}
+                    variants={itemVariants}
+                    className="group border border-stone-100 bg-white rounded-lg p-7 hover:border-stone-300 hover:shadow-md transition-all cursor-pointer"
+                  >
+                    <div className="flex items-start gap-4 mb-7">
+                      <div className="w-13 h-13 rounded-full bg-stone-950 flex items-center justify-center shrink-0">
+                        <span className="text-sm font-black tracking-tighter text-amber-500">{initials}</span>
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <h3 className="text-base font-black tracking-tight text-stone-950 truncate">{seller.user.name}</h3>
+                        <span className="text-[10px] uppercase tracking-widest font-bold text-amber-700 bg-amber-50 px-2 py-0.5 rounded mt-1 inline-block">
+                          Verified
+                        </span>
+                      </div>
                     </div>
-                    <p className="text-xs text-stone-400">{seller.location}</p>
-                  </div>
-                </div>
 
-                <div className="grid grid-cols-2 gap-4 border-t border-stone-50 pt-5">
-                  <div>
-                    <p className="text-[10px] uppercase tracking-widest text-stone-400 mb-1">Drops</p>
-                    <p className="text-2xl font-black tracking-tight text-stone-950">{seller.drops}</p>
-                  </div>
-                  <div>
-                    <p className="text-[10px] uppercase tracking-widest text-stone-400 mb-1">Rating</p>
-                    <p className="text-2xl font-black tracking-tight text-stone-950">{seller.rating}</p>
-                  </div>
-                </div>
+                    <div className="border-t border-stone-50 pt-5">
+                      <p className="text-[10px] uppercase tracking-widest text-stone-400 mb-1">Products</p>
+                      <p className="text-2xl font-black tracking-tight text-stone-950">{seller._count.products}</p>
+                    </div>
 
-                <button className="mt-6 w-full h-10 border border-stone-100 text-stone-950 font-bold text-xs uppercase tracking-widest rounded hover:bg-stone-950 hover:text-white hover:border-stone-950 transition-all">
-                  View Drops
-                </button>
-              </motion.div>
-            ))}
-          </motion.div>
+                    <Link
+                      to="/drops"
+                      className="mt-6 w-full h-10 border border-stone-100 text-stone-950 font-bold text-xs uppercase tracking-widest rounded hover:bg-stone-950 hover:text-white hover:border-stone-950 transition-all flex items-center justify-center"
+                    >
+                      View Drops
+                    </Link>
+                  </motion.div>
+                )
+              })}
+            </motion.div>
+          )}
         </section>
 
 
@@ -604,15 +539,15 @@ function HeroVisual() {
       >
         <div className="h-32 bg-stone-900 overflow-hidden">
           <img
-            src={MOCK_DROPS[1].image}
-            alt={MOCK_DROPS[1].title}
+            src="https://images.unsplash.com/photo-1523275335684-37898b6baf30?auto=format&fit=crop&w=800&q=80"
+            alt="Archive Selects"
             className="w-full h-full object-cover opacity-90"
           />
         </div>
         <div className="p-4">
-          <p className="text-[9px] uppercase tracking-widest text-stone-400 mb-1">{MOCK_DROPS[1].label}</p>
-          <p className="text-sm font-black tracking-tight text-stone-950">{MOCK_DROPS[1].title}</p>
-          <p className="text-base font-black text-stone-950 mt-2">{MOCK_DROPS[1].price}</p>
+          <p className="text-[9px] uppercase tracking-widest text-stone-400 mb-1">Dropping Soon</p>
+          <p className="text-sm font-black tracking-tight text-stone-950">Archive Selects Vol. 7</p>
+          <p className="text-base font-black text-stone-950 mt-2">From $180</p>
         </div>
       </motion.div>
 
@@ -624,10 +559,10 @@ function HeroVisual() {
         style={{ perspective: 800, rotateY: 8, rotateX: -4 }}
       >
         <p className="text-[9px] uppercase tracking-widest text-amber-600 mb-2">Next drop</p>
-        <p className="text-sm font-black text-white leading-tight">{MOCK_DROPS[2].title}</p>
+        <p className="text-sm font-black text-white leading-tight">Monochrome Edit</p>
         <div className="mt-3 flex items-center gap-2">
           <span className="animate-pulse-dot inline-block w-1.5 h-1.5 rounded-full bg-amber-500" />
-          <span className="text-[10px] text-stone-400 uppercase tracking-widest">{MOCK_DROPS[2].ends}</span>
+          <span className="text-[10px] text-stone-400 uppercase tracking-widest">In 3 days</span>
         </div>
       </motion.div>
 
@@ -640,8 +575,8 @@ function HeroVisual() {
       >
         <div className="h-44 bg-stone-900 overflow-hidden">
           <img
-            src={MOCK_DROPS[0].image}
-            alt={MOCK_DROPS[0].title}
+            src="https://images.unsplash.com/photo-1542291026-7eec264c27ff?auto=format&fit=crop&w=800&q=80"
+            alt="Maison Noir SS25"
             className="w-full h-full object-cover"
           />
           <div className="absolute top-3 left-3 flex items-center gap-1.5 bg-black/50 backdrop-blur-sm px-2.5 py-1.5 rounded-lg">
@@ -650,13 +585,11 @@ function HeroVisual() {
           </div>
         </div>
         <div className="p-5">
-          <p className="text-xs font-black tracking-tight text-stone-950 mb-0.5">{MOCK_DROPS[0].title}</p>
-          <p className="text-[11px] text-stone-400 mb-4">{MOCK_DROPS[0].subtitle}</p>
+          <p className="text-xs font-black tracking-tight text-stone-950 mb-0.5">Maison Noir SS25</p>
+          <p className="text-[11px] text-stone-400 mb-4">Structured silhouettes. Zero compromise.</p>
           <div className="flex items-center justify-between">
-            <p className="text-xl font-black tracking-tight text-stone-950">{MOCK_DROPS[0].price}</p>
-            <span className="text-[10px] uppercase tracking-widest text-amber-700 font-bold">
-              {MOCK_DROPS[0].slots} slots left
-            </span>
+            <p className="text-xl font-black tracking-tight text-stone-950">$420</p>
+            <span className="text-[10px] uppercase tracking-widest text-amber-700 font-bold">3 slots left</span>
           </div>
         </div>
       </motion.div>
@@ -664,46 +597,76 @@ function HeroVisual() {
   )
 }
 
-function DropCard({ drop }: { drop: (typeof MOCK_DROPS)[0] }) {
+function DropCard({ drop }: { drop: Drop }) {
+  const isLive = drop.status === 'LIVE'
+  const slotsLeft = drop.stock - drop.sold
+  const timeTarget = isLive ? drop.endTime : drop.startTime
+
+  const [now, setNow] = useState(() => Date.now())
+  useEffect(() => {
+    const timer = setInterval(() => setNow(Date.now()), 60000)
+    return () => clearInterval(timer)
+  }, [])
+
+  const timeLabel = (() => {
+    const diff = new Date(timeTarget).getTime() - now
+    if (diff <= 0) return isLive ? 'Ending now' : 'Starting now'
+    const h = Math.floor(diff / 3600000)
+    const m = Math.floor((diff % 3600000) / 60000)
+    if (h < 24) return `${h}h ${m}m ${isLive ? 'left' : ''}`
+    const d = Math.floor(h / 24)
+    return `In ${d} day${d !== 1 ? 's' : ''}`
+  })()
+
   return (
-    <div className="group border border-stone-100 bg-white rounded-xl overflow-hidden hover:border-stone-300 hover:shadow-lg transition-all cursor-pointer">
-      <div className="relative h-56 bg-stone-900 overflow-hidden">
-        <img
-          src={drop.image}
-          alt={drop.title}
-          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
-        />
-        <div className="absolute inset-0 bg-linear-to-t from-black/40 to-transparent" />
-        <div className="absolute top-3 left-3 flex items-center gap-2 bg-black/50 backdrop-blur-sm px-2.5 py-1.5 rounded-md">
-          {drop.live && <span className="animate-pulse-dot inline-block w-1.5 h-1.5 rounded-full bg-amber-400" />}
-          <span className="text-[9px] uppercase tracking-widest font-bold text-white">{drop.label}</span>
-        </div>
-        <div className="absolute top-3 right-3 bg-black/50 backdrop-blur-sm px-2.5 py-1.5 rounded-md">
-          <span className="text-[9px] uppercase tracking-widest font-bold text-white/70">{drop.slots} left</span>
-        </div>
-      </div>
-
-      <div className="p-6">
-        <div className="mb-5">
-          <h3 className="text-xl font-black tracking-tight text-stone-950 mb-1">{drop.title}</h3>
-          <p className="text-sm text-stone-500 leading-snug">{drop.subtitle}</p>
-        </div>
-
-        <div className="flex items-end justify-between mb-5">
-          <div>
-            <p className="text-[10px] uppercase tracking-widest text-stone-400 mb-1">From</p>
-            <p className="text-2xl font-black tracking-tight text-stone-950">{drop.price}</p>
+    <Link to={`/drops/${drop.id}`}>
+      <div className="group border border-stone-100 bg-white rounded-xl overflow-hidden hover:border-stone-300 hover:shadow-lg transition-all cursor-pointer">
+        <div className="relative h-56 bg-stone-900 overflow-hidden">
+          {drop.product.imageUrl ? (
+            <img
+              src={drop.product.imageUrl}
+              alt={drop.product.name}
+              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
+            />
+          ) : (
+            <div className="w-full h-full flex items-center justify-center">
+              <span className="text-stone-600 text-xs uppercase tracking-widest">No image</span>
+            </div>
+          )}
+          <div className="absolute inset-0 bg-linear-to-t from-black/40 to-transparent" />
+          <div className="absolute top-3 left-3 flex items-center gap-2 bg-black/50 backdrop-blur-sm px-2.5 py-1.5 rounded-md">
+            {isLive && <span className="animate-pulse-dot inline-block w-1.5 h-1.5 rounded-full bg-amber-400" />}
+            <span className="text-[9px] uppercase tracking-widest font-bold text-white">
+              {isLive ? 'Live Now' : 'Dropping Soon'}
+            </span>
           </div>
-          <div className="text-right">
-            <p className="text-[10px] uppercase tracking-widest text-stone-400 mb-1">Ends</p>
-            <p className="text-sm font-semibold text-stone-600">{drop.ends}</p>
+          <div className="absolute top-3 right-3 bg-black/50 backdrop-blur-sm px-2.5 py-1.5 rounded-md">
+            <span className="text-[9px] uppercase tracking-widest font-bold text-white/70">{slotsLeft} left</span>
           </div>
         </div>
 
-        <button className="w-full h-10 bg-stone-950 text-white font-bold text-xs uppercase tracking-widest rounded-lg hover:-translate-y-px hover:shadow-md transition-all group-hover:bg-amber-700">
-          {drop.live ? 'Enter Drop' : 'Notify Me'}
-        </button>
+        <div className="p-6">
+          <div className="mb-5">
+            <h3 className="text-xl font-black tracking-tight text-stone-950 mb-1">{drop.product.name}</h3>
+            <p className="text-sm text-stone-500 leading-snug line-clamp-2">{drop.product.description}</p>
+          </div>
+
+          <div className="flex items-end justify-between mb-5">
+            <div>
+              <p className="text-[10px] uppercase tracking-widest text-stone-400 mb-1">From</p>
+              <p className="text-2xl font-black tracking-tight text-stone-950">${drop.product.price.toLocaleString()}</p>
+            </div>
+            <div className="text-right">
+              <p className="text-[10px] uppercase tracking-widest text-stone-400 mb-1">{isLive ? 'Ends' : 'Starts'}</p>
+              <p className="text-sm font-semibold text-stone-600">{timeLabel}</p>
+            </div>
+          </div>
+
+          <button className="w-full h-10 bg-stone-950 text-white font-bold text-xs uppercase tracking-widest rounded-lg hover:-translate-y-px hover:shadow-md transition-all group-hover:bg-amber-700">
+            {isLive ? 'Enter Drop' : 'Notify Me'}
+          </button>
+        </div>
       </div>
-    </div>
+    </Link>
   )
 }

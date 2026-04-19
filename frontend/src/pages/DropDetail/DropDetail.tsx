@@ -40,6 +40,7 @@ export default function DropDetail() {
   const [reviews, setReviews] = useState<Review[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
+  const [qty, setQty] = useState(1)
   const [buying, setBuying] = useState(false)
   const [buyError, setBuyError] = useState('')
   const [ordered, setOrdered] = useState(false)
@@ -84,7 +85,7 @@ export default function DropDetail() {
     setBuying(true)
     setBuyError('')
     try {
-      await createOrder(drop.id)
+      await createOrder(drop.id, qty)
       setOrdered(true)
       const res = await getDropById(drop.id)
       setDrop(res.data.data)
@@ -200,11 +201,42 @@ export default function DropDetail() {
             </div>
 
             <div>
+              {canBuy && (
+                <div className="mb-6">
+                  <p className="text-[10px] uppercase tracking-widest font-bold text-stone-400 mb-3">Quantity</p>
+                  <div className="flex items-center gap-3">
+                    <button
+                      type="button"
+                      onClick={() => setQty((q) => Math.max(1, q - 1))}
+                      disabled={qty <= 1}
+                      className="w-9 h-9 rounded-lg border border-stone-200 flex items-center justify-center text-stone-600 hover:border-stone-400 hover:text-stone-950 transition-all disabled:opacity-30 disabled:cursor-default text-lg font-bold"
+                    >
+                      −
+                    </button>
+                    <span className="text-xl font-black tracking-tight text-stone-950 w-8 text-center tabular-nums">{qty}</span>
+                    <button
+                      type="button"
+                      onClick={() => setQty((q) => Math.min(slotsLeft, q + 1))}
+                      disabled={qty >= slotsLeft}
+                      className="w-9 h-9 rounded-lg border border-stone-200 flex items-center justify-center text-stone-600 hover:border-stone-400 hover:text-stone-950 transition-all disabled:opacity-30 disabled:cursor-default text-lg font-bold"
+                    >
+                      +
+                    </button>
+                    <span className="text-xs text-stone-400 font-semibold">{slotsLeft} available</span>
+                  </div>
+                </div>
+              )}
+
               <div className="flex items-end justify-between mb-6">
                 <div>
                   <p className="text-[10px] uppercase tracking-widest text-stone-400 mb-1">Price</p>
                   <p className="text-4xl font-black tracking-tight text-stone-950">
-                    ${drop.product.price.toLocaleString()}
+                    ${(drop.product.price * qty).toLocaleString()}
+                    {qty > 1 && (
+                      <span className="text-base font-semibold text-stone-400 ml-2">
+                        (${drop.product.price.toLocaleString()} × {qty})
+                      </span>
+                    )}
                   </p>
                 </div>
                 <div className="text-right">

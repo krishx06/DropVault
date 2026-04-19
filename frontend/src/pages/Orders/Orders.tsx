@@ -6,6 +6,28 @@ import type { Order, OrderStatus } from '../../types/order.types'
 import Navbar from '../../components/common/Navbar'
 import Footer from '../../components/common/Footer'
 
+const CANCEL_WINDOW_MS = 60_000
+
+function useCancelSecondsLeft(createdAt: string) {
+  const [secondsLeft, setSecondsLeft] = useState(() => {
+    const elapsed = Date.now() - new Date(createdAt).getTime()
+    return Math.max(0, Math.ceil((CANCEL_WINDOW_MS - elapsed) / 1000))
+  })
+
+  useEffect(() => {
+    if (secondsLeft === 0) return
+    const id = setInterval(() => {
+      const elapsed = Date.now() - new Date(createdAt).getTime()
+      const left = Math.max(0, Math.ceil((CANCEL_WINDOW_MS - elapsed) / 1000))
+      setSecondsLeft(left)
+      if (left === 0) clearInterval(id)
+    }, 1000)
+    return () => clearInterval(id)
+  }, [createdAt, secondsLeft])
+
+  return secondsLeft
+}
+
 const STATUS_STYLES: Record<OrderStatus, string> = {
   PENDING: 'bg-amber-50 text-amber-700 border-amber-200',
   CONFIRMED: 'bg-emerald-50 text-emerald-700 border-emerald-200',
@@ -127,6 +149,8 @@ function OrderRow({
 }) {
   const drop = order.drop
   const isEnded = drop?.status === 'ENDED' || drop?.status === 'SOLD_OUT'
+  const cancelSecondsLeft = useCancelSecondsLeft(order.createdAt)
+  const canCancel = order.status === 'PENDING' && cancelSecondsLeft > 0
 
   return (
     <div className="bg-white border border-stone-100 rounded-xl overflow-hidden hover:border-stone-200 transition-colors">
@@ -178,14 +202,19 @@ function OrderRow({
               </p>
             </div>
 
-            {order.status === 'PENDING' && (
-              <button
-                onClick={() => onCancel(order.id)}
-                disabled={cancelling}
-                className="text-xs font-bold uppercase tracking-widest text-red-400 hover:text-red-600 transition-colors disabled:opacity-50"
-              >
-                {cancelling ? 'Cancelling…' : 'Cancel'}
-              </button>
+            {canCancel && (
+              <div className="flex items-center gap-2">
+                <span className="text-[10px] tabular-nums font-semibold text-stone-400">
+                  {cancelSecondsLeft}s
+                </span>
+                <button
+                  onClick={() => onCancel(order.id)}
+                  disabled={cancelling}
+                  className="text-xs font-bold uppercase tracking-widest text-red-400 hover:text-red-600 transition-colors disabled:opacity-50"
+                >
+                  {cancelling ? 'Cancelling…' : 'Cancel'}
+                </button>
+              </div>
             )}
           </div>
         </div>

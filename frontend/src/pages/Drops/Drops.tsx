@@ -43,9 +43,29 @@ export default function Drops() {
       setLoading(true)
       setError('')
       try {
-        const status = activeTab === 'ALL' ? undefined : (activeTab as DropStatus)
-        const res = await getDrops(status)
-        setDrops(res.data.data)
+        if (activeTab === 'ALL') {
+          const [base, ended, soldOut] = await Promise.all([
+            getDrops(),
+            getDrops('ENDED'),
+            getDrops('SOLD_OUT'),
+          ])
+          const seen = new Set<string>()
+          const merged = [...base.data.data, ...ended.data.data, ...soldOut.data.data].filter((d) => {
+            if (seen.has(d.id)) return false
+            seen.add(d.id)
+            return true
+          })
+          setDrops(merged)
+        } else if (activeTab === 'ENDED') {
+          const [ended, soldOut] = await Promise.all([
+            getDrops('ENDED'),
+            getDrops('SOLD_OUT'),
+          ])
+          setDrops([...ended.data.data, ...soldOut.data.data])
+        } else {
+          const res = await getDrops(activeTab as DropStatus)
+          setDrops(res.data.data)
+        }
       } catch {
         setError('Failed to load drops. Please try again.')
       } finally {
