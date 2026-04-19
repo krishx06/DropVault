@@ -1,6 +1,7 @@
 import { motion } from 'framer-motion'
-import { Link, useNavigate } from 'react-router-dom'
-import { useAuthStore } from '../../store/auth.store'
+import { Link } from 'react-router-dom'
+import Navbar from '../../components/common/Navbar'
+import Footer from '../../components/common/Footer'
 
 const MOCK_DROPS = [
   {
@@ -142,57 +143,9 @@ const itemVariants = {
 }
 
 export default function Home() {
-  const user = useAuthStore((s) => s.user)
-  const logout = useAuthStore((s) => s.logout)
-  const navigate = useNavigate()
-
-  function handleLogout() {
-    logout()
-    navigate('/login')
-  }
-
   return (
     <div className="min-h-screen bg-[#fbf9f9]">
-      <div className="fixed top-0 left-0 w-full h-0.75 bg-linear-to-r from-amber-800 to-amber-500 z-50" />
-
-      <header className="sticky top-0.75 z-40 bg-[#fbf9f9]/90 backdrop-blur-sm border-b border-stone-100">
-        <nav className="max-w-6xl mx-auto px-6 h-14 flex items-center justify-between">
-          <Link to="/" className="flex items-center gap-0.5">
-            <span className="text-xl font-black tracking-tighter text-stone-950">Drop</span>
-            <span className="text-xl font-black tracking-tighter text-amber-700">Vault</span>
-          </Link>
-
-          <div className="hidden md:flex items-center gap-8">
-            {[
-              { label: 'Drops', target: 'active-drops' },
-              { label: 'Sellers', target: 'sellers' },
-              { label: 'How It Works', target: 'how-it-works' },
-            ].map(({ label, target }) => (
-              <button
-                key={label}
-                onClick={() => document.getElementById(target)?.scrollIntoView({ behavior: 'smooth' })}
-                className="text-[11px] uppercase tracking-widest font-semibold text-stone-500 hover:text-stone-950 transition-colors"
-              >
-                {label}
-              </button>
-            ))}
-          </div>
-
-          <div className="flex items-center gap-4">
-            {user && (
-              <span className="hidden sm:block text-[11px] uppercase tracking-widest font-semibold text-stone-400">
-                {user.name.split(' ')[0]}
-              </span>
-            )}
-            <button
-              onClick={handleLogout}
-              className="text-[11px] uppercase tracking-widest font-bold text-stone-950 border border-stone-200 px-4 h-8 rounded hover:bg-stone-950 hover:text-white transition-all"
-            >
-              Sign Out
-            </button>
-          </div>
-        </nav>
-      </header>
+      <Navbar />
 
       <main>
 
@@ -223,12 +176,12 @@ export default function Home() {
               </p>
 
               <div className="flex flex-wrap items-center gap-4">
-                <button
-                  onClick={() => document.getElementById('active-drops')?.scrollIntoView({ behavior: 'smooth' })}
-                  className="h-13 px-9 bg-stone-950 text-white font-bold text-sm uppercase tracking-widest rounded hover:-translate-y-px hover:shadow-lg transition-all"
+                <Link
+                  to="/drops?status=live"
+                  className="h-13 px-9 bg-stone-950 text-white font-bold text-sm uppercase tracking-widest rounded hover:-translate-y-px hover:shadow-lg transition-all inline-flex items-center"
                 >
                   Browse Live Drops
-                </button>
+                </Link>
                 <button
                   onClick={() => document.getElementById('how-it-works')?.scrollIntoView({ behavior: 'smooth' })}
                   className="h-13 px-9 border border-stone-200 text-stone-950 font-bold text-sm uppercase tracking-widest rounded hover:border-stone-400 transition-all"
@@ -288,9 +241,9 @@ export default function Home() {
               </p>
               <h2 className="text-4xl font-black tracking-tighter text-stone-950">Active Drops</h2>
             </div>
-            <button className="text-xs uppercase tracking-widest font-bold text-amber-700 hover:underline underline-offset-4 hidden sm:block">
+            <Link to="/drops" className="text-xs uppercase tracking-widest font-bold text-amber-700 hover:underline underline-offset-4 hidden sm:block">
               View All →
-            </button>
+            </Link>
           </div>
 
           <motion.div
@@ -617,87 +570,7 @@ export default function Home() {
         </section>
       </main>
 
-      <footer className="border-t border-stone-100 pt-16 pb-10">
-        <div className="max-w-6xl mx-auto px-6">
-          <div className="flex flex-col md:flex-row md:items-start justify-between gap-12 mb-16">
-            <div className="max-w-xs">
-              <div className="flex items-center gap-0.5 mb-4">
-                <span className="text-2xl font-black tracking-tighter text-stone-950">Drop</span>
-                <span className="text-2xl font-black tracking-tighter text-amber-700">Vault</span>
-              </div>
-              <p className="text-sm text-stone-400 leading-relaxed">
-                Time-limited access to rare, curated pieces from verified independent sellers.
-              </p>
-            </div>
-
-            <div className="grid grid-cols-2 sm:grid-cols-3 gap-x-16 gap-y-8">
-              <div>
-                <p className="text-[10px] uppercase tracking-widest font-bold text-stone-950 mb-4">Shop</p>
-                <ul className="space-y-3">
-                  {[
-                    { label: 'Live Drops', target: 'active-drops' },
-                    { label: 'Upcoming', target: 'active-drops' },
-                    { label: 'Archive', target: null },
-                    { label: 'Categories', target: 'categories' },
-                  ].map(({ label, target }) => (
-                    <li key={label}>
-                      <button
-                        onClick={() => target && document.getElementById(target)?.scrollIntoView({ behavior: 'smooth' })}
-                        className="text-sm text-stone-400 hover:text-stone-950 transition-colors"
-                      >
-                        {label}
-                      </button>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-              <div>
-                <p className="text-[10px] uppercase tracking-widest font-bold text-stone-950 mb-4">Sellers</p>
-                <ul className="space-y-3">
-                  {[
-                    { label: 'Become a Seller', target: 'sellers' },
-                    { label: 'Seller Login', target: null },
-                    { label: 'How It Works', target: 'how-it-works' },
-                    { label: 'Verification', target: 'sellers' },
-                  ].map(({ label, target }) => (
-                    <li key={label}>
-                      <button
-                        onClick={() => target && document.getElementById(target)?.scrollIntoView({ behavior: 'smooth' })}
-                        className="text-sm text-stone-400 hover:text-stone-950 transition-colors"
-                      >
-                        {label}
-                      </button>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-              <div>
-                <p className="text-[10px] uppercase tracking-widest font-bold text-stone-950 mb-4">Company</p>
-                <ul className="space-y-3">
-                  {['About', 'FAQ', 'Terms', 'Privacy'].map((l) => (
-                    <li key={l}>
-                      <button className="text-sm text-stone-400 hover:text-stone-950 transition-colors">{l}</button>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            </div>
-          </div>
-
-          <div className="flex flex-col sm:flex-row items-center justify-between gap-4 border-t border-stone-100 pt-8">
-            <p className="text-xs uppercase tracking-widest text-stone-300">
-              © 2024 DropVault. All rights reserved.
-            </p>
-            <div className="flex items-center gap-6">
-              {['Terms', 'Privacy', 'Cookies'].map((l) => (
-                <button key={l} className="text-xs uppercase tracking-widest text-stone-300 hover:text-stone-950 transition-colors">
-                  {l}
-                </button>
-              ))}
-            </div>
-          </div>
-        </div>
-      </footer>
+      <Footer />
     </div>
   )
 }
