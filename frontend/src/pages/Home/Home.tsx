@@ -163,12 +163,17 @@ export default function Home() {
           </Link>
 
           <div className="hidden md:flex items-center gap-8">
-            {['Drops', 'Sellers', 'How It Works'].map((item) => (
+            {[
+              { label: 'Drops', target: 'active-drops' },
+              { label: 'Sellers', target: 'sellers' },
+              { label: 'How It Works', target: 'how-it-works' },
+            ].map(({ label, target }) => (
               <button
-                key={item}
+                key={label}
+                onClick={() => document.getElementById(target)?.scrollIntoView({ behavior: 'smooth' })}
                 className="text-[11px] uppercase tracking-widest font-semibold text-stone-500 hover:text-stone-950 transition-colors"
               >
-                {item}
+                {label}
               </button>
             ))}
           </div>
@@ -191,46 +196,56 @@ export default function Home() {
 
       <main>
 
-        <section className="max-w-6xl mx-auto px-6 pt-20 pb-24">
-          <motion.div
-            initial={{ opacity: 0, y: 12 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5 }}
-            className="max-w-4xl"
-          >
-            <div className="flex items-center gap-3 mb-8">
-              <span className="animate-pulse-dot inline-block w-2 h-2 rounded-full bg-amber-600" />
-              <span className="text-xs uppercase tracking-[0.25em] font-bold text-amber-700">
-                Drops are live
-              </span>
-            </div>
+        <section className="max-w-6xl mx-auto px-6 pt-13 pb-24">
+          <div className="flex flex-col lg:flex-row lg:items-center gap-16">
+            <motion.div
+              initial={{ opacity: 0, y: 12 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5 }}
+              className="flex-1"
+            >
+              <div className="flex items-center gap-3 mb-8">
+                <span className="animate-pulse-dot inline-block w-2 h-2 rounded-full bg-amber-600" />
+                <span className="text-xs uppercase tracking-[0.25em] font-bold text-amber-700">
+                  Drops are live
+                </span>
+              </div>
 
-            <h1 className="text-7xl md:text-9xl font-black tracking-tighter text-stone-950 leading-[0.93] mb-8">
-              The vault
-              <br />
-              <span className="italic text-stone-400">is open.</span>
-            </h1>
+              <h1 className="text-7xl md:text-9xl font-black tracking-tighter text-stone-950 leading-[0.93] mb-8">
+                The vault
+                <br />
+                <span className="italic text-stone-400">is open.</span>
+              </h1>
 
-            <p className="text-stone-500 text-xl max-w-lg leading-relaxed mb-12">
-              Time-limited access to rare, curated pieces from verified independent sellers.
-              Miss a drop, miss it forever.
-            </p>
+              <p className="text-stone-500 text-xl max-w-lg leading-relaxed mb-12">
+                Time-limited access to rare, curated pieces from verified independent sellers.
+                Miss a drop, miss it forever.
+              </p>
 
-            <div className="flex flex-wrap items-center gap-4">
-              <button className="h-13 px-9 bg-stone-950 text-white font-bold text-sm uppercase tracking-widest rounded hover:-translate-y-px hover:shadow-lg transition-all">
-                Browse Live Drops
-              </button>
-              <button className="h-13 px-9 border border-stone-200 text-stone-950 font-bold text-sm uppercase tracking-widest rounded hover:border-stone-400 transition-all">
-                How It Works
-              </button>
-            </div>
-          </motion.div>
+              <div className="flex flex-wrap items-center gap-4">
+                <button
+                  onClick={() => document.getElementById('active-drops')?.scrollIntoView({ behavior: 'smooth' })}
+                  className="h-13 px-9 bg-stone-950 text-white font-bold text-sm uppercase tracking-widest rounded hover:-translate-y-px hover:shadow-lg transition-all"
+                >
+                  Browse Live Drops
+                </button>
+                <button
+                  onClick={() => document.getElementById('how-it-works')?.scrollIntoView({ behavior: 'smooth' })}
+                  className="h-13 px-9 border border-stone-200 text-stone-950 font-bold text-sm uppercase tracking-widest rounded hover:border-stone-400 transition-all"
+                >
+                  How It Works
+                </button>
+              </div>
+            </motion.div>
+
+            <HeroVisual />
+          </div>
         </section>
 
         <Divider />
 
 
-        <section className="py-14">
+        <section id="categories" className="py-14">
           <div className="max-w-6xl mx-auto px-6 mb-8">
             <p className="text-xs uppercase tracking-[0.25em] font-bold text-stone-400 mb-1">Shop by</p>
             <h2 className="text-3xl font-black tracking-tighter text-stone-950">Categories</h2>
@@ -265,7 +280,7 @@ export default function Home() {
         <Divider />
 
 
-        <section className="max-w-6xl mx-auto px-6 py-18">
+        <section id="active-drops" className="max-w-6xl mx-auto px-6 py-18">
           <div className="flex items-end justify-between mb-10">
             <div>
               <p className="text-xs uppercase tracking-[0.25em] font-bold text-stone-400 mb-2">
@@ -446,7 +461,7 @@ export default function Home() {
         <Divider />
 
 
-        <section className="max-w-6xl mx-auto px-6 py-18">
+        <section id="sellers" className="max-w-6xl mx-auto px-6 py-18">
           <div className="flex items-end justify-between mb-10">
             <div>
               <p className="text-xs uppercase tracking-[0.25em] font-bold text-stone-400 mb-2">
@@ -507,7 +522,7 @@ export default function Home() {
         </section>
 
 
-        <section className="max-w-6xl mx-auto px-6 py-18">
+        <section id="how-it-works" className="max-w-6xl mx-auto px-6 py-18">
           <div className="mb-10">
             <p className="text-xs uppercase tracking-[0.25em] font-bold text-stone-400 mb-2">Process</p>
             <h2 className="text-4xl font-black tracking-tighter text-stone-950">How drops work</h2>
@@ -619,9 +634,19 @@ export default function Home() {
               <div>
                 <p className="text-[10px] uppercase tracking-widest font-bold text-stone-950 mb-4">Shop</p>
                 <ul className="space-y-3">
-                  {['Live Drops', 'Upcoming', 'Archive', 'Categories'].map((l) => (
-                    <li key={l}>
-                      <button className="text-sm text-stone-400 hover:text-stone-950 transition-colors">{l}</button>
+                  {[
+                    { label: 'Live Drops', target: 'active-drops' },
+                    { label: 'Upcoming', target: 'active-drops' },
+                    { label: 'Archive', target: null },
+                    { label: 'Categories', target: 'categories' },
+                  ].map(({ label, target }) => (
+                    <li key={label}>
+                      <button
+                        onClick={() => target && document.getElementById(target)?.scrollIntoView({ behavior: 'smooth' })}
+                        className="text-sm text-stone-400 hover:text-stone-950 transition-colors"
+                      >
+                        {label}
+                      </button>
                     </li>
                   ))}
                 </ul>
@@ -629,9 +654,19 @@ export default function Home() {
               <div>
                 <p className="text-[10px] uppercase tracking-widest font-bold text-stone-950 mb-4">Sellers</p>
                 <ul className="space-y-3">
-                  {['Become a Seller', 'Seller Login', 'How It Works', 'Verification'].map((l) => (
-                    <li key={l}>
-                      <button className="text-sm text-stone-400 hover:text-stone-950 transition-colors">{l}</button>
+                  {[
+                    { label: 'Become a Seller', target: 'sellers' },
+                    { label: 'Seller Login', target: null },
+                    { label: 'How It Works', target: 'how-it-works' },
+                    { label: 'Verification', target: 'sellers' },
+                  ].map(({ label, target }) => (
+                    <li key={label}>
+                      <button
+                        onClick={() => target && document.getElementById(target)?.scrollIntoView({ behavior: 'smooth' })}
+                        className="text-sm text-stone-400 hover:text-stone-950 transition-colors"
+                      >
+                        {label}
+                      </button>
                     </li>
                   ))}
                 </ul>
@@ -672,6 +707,87 @@ function Divider() {
     <div className="max-w-6xl mx-auto px-6">
       <div className="h-px bg-stone-100" />
     </div>
+  )
+}
+
+function HeroVisual() {
+  return (
+    <motion.div
+      initial={{ opacity: 0, x: 24 }}
+      animate={{ opacity: 1, x: 0 }}
+      transition={{ duration: 0.6, delay: 0.2 }}
+      className="hidden lg:flex flex-1 items-center justify-center relative min-h-105"
+    >
+      {/* Ambient orbs */}
+      <div className="absolute top-8 right-8 w-72 h-72 bg-amber-300/20 rounded-full blur-3xl pointer-events-none" />
+      <div className="absolute bottom-8 left-8 w-48 h-48 bg-stone-300/30 rounded-full blur-2xl pointer-events-none" />
+
+      {/* Back card */}
+      <motion.div
+        animate={{ y: [10, -6, 10], rotate: [-2, -4, -2] }}
+        transition={{ duration: 6, repeat: Infinity, ease: 'easeInOut' }}
+        className="absolute top-6 right-4 w-52 bg-white border border-stone-100 rounded-2xl overflow-hidden shadow-xl"
+        style={{ perspective: 800, rotateY: -10, rotateX: 4 }}
+      >
+        <div className="h-32 bg-stone-900 overflow-hidden">
+          <img
+            src={MOCK_DROPS[1].image}
+            alt={MOCK_DROPS[1].title}
+            className="w-full h-full object-cover opacity-90"
+          />
+        </div>
+        <div className="p-4">
+          <p className="text-[9px] uppercase tracking-widest text-stone-400 mb-1">{MOCK_DROPS[1].label}</p>
+          <p className="text-sm font-black tracking-tight text-stone-950">{MOCK_DROPS[1].title}</p>
+          <p className="text-base font-black text-stone-950 mt-2">{MOCK_DROPS[1].price}</p>
+        </div>
+      </motion.div>
+
+      {/* Third card (bottom-left) */}
+      <motion.div
+        animate={{ y: [-8, 8, -8], rotate: [3, 5, 3] }}
+        transition={{ duration: 7, repeat: Infinity, ease: 'easeInOut', delay: 1 }}
+        className="absolute bottom-4 left-4 w-44 bg-stone-950 border border-stone-800 rounded-2xl p-4 shadow-xl"
+        style={{ perspective: 800, rotateY: 8, rotateX: -4 }}
+      >
+        <p className="text-[9px] uppercase tracking-widest text-amber-600 mb-2">Next drop</p>
+        <p className="text-sm font-black text-white leading-tight">{MOCK_DROPS[2].title}</p>
+        <div className="mt-3 flex items-center gap-2">
+          <span className="animate-pulse-dot inline-block w-1.5 h-1.5 rounded-full bg-amber-500" />
+          <span className="text-[10px] text-stone-400 uppercase tracking-widest">{MOCK_DROPS[2].ends}</span>
+        </div>
+      </motion.div>
+
+      {/* Main card */}
+      <motion.div
+        animate={{ y: [0, -18, 0] }}
+        transition={{ duration: 5, repeat: Infinity, ease: 'easeInOut', delay: 0.5 }}
+        className="relative z-10 w-64 bg-white border border-stone-100 rounded-2xl overflow-hidden shadow-2xl"
+        style={{ perspective: 800, rotateY: 4, rotateX: -2 }}
+      >
+        <div className="h-44 bg-stone-900 overflow-hidden">
+          <img
+            src={MOCK_DROPS[0].image}
+            alt={MOCK_DROPS[0].title}
+            className="w-full h-full object-cover"
+          />
+          <div className="absolute top-3 left-3 flex items-center gap-1.5 bg-black/50 backdrop-blur-sm px-2.5 py-1.5 rounded-lg">
+            <span className="animate-pulse-dot inline-block w-1.5 h-1.5 rounded-full bg-amber-400" />
+            <span className="text-[9px] uppercase tracking-widest font-bold text-white">Live Now</span>
+          </div>
+        </div>
+        <div className="p-5">
+          <p className="text-xs font-black tracking-tight text-stone-950 mb-0.5">{MOCK_DROPS[0].title}</p>
+          <p className="text-[11px] text-stone-400 mb-4">{MOCK_DROPS[0].subtitle}</p>
+          <div className="flex items-center justify-between">
+            <p className="text-xl font-black tracking-tight text-stone-950">{MOCK_DROPS[0].price}</p>
+            <span className="text-[10px] uppercase tracking-widest text-amber-700 font-bold">
+              {MOCK_DROPS[0].slots} slots left
+            </span>
+          </div>
+        </div>
+      </motion.div>
+    </motion.div>
   )
 }
 
