@@ -5,7 +5,7 @@ const NAV_ITEMS = [
   { label: 'Overview', to: '/seller', icon: 'dashboard', end: true },
   { label: 'Products', to: '/seller/products', icon: 'inventory_2' },
   { label: 'Drops', to: '/seller/drops', icon: 'bolt' },
-  { label: 'Orders', to: '/seller/orders', icon: 'local_shipping', disabled: true },
+  { label: 'Orders', to: '/seller/orders', icon: 'local_shipping' },
 ]
 
 export default function SellerLayout() {
@@ -36,43 +36,32 @@ export default function SellerLayout() {
         </div>
 
         <nav className="flex-1 space-y-1">
-          {NAV_ITEMS.map((item) =>
-            item.disabled ? (
-              <div
-                key={item.label}
-                className="flex items-center gap-3 px-4 py-3 text-stone-300 rounded-lg text-sm font-medium tracking-wide cursor-not-allowed"
-              >
-                <span className="material-symbols-outlined text-[20px]">{item.icon}</span>
-                <span>{item.label}</span>
-                <span className="ml-auto text-[9px] uppercase tracking-widest font-bold text-stone-300">Soon</span>
-              </div>
-            ) : (
-              <NavLink
-                key={item.label}
-                to={item.to}
-                end={item.end}
-                className={({ isActive }) =>
-                  `flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium tracking-wide transition-all duration-150 ${
-                    isActive
-                      ? 'text-amber-700 bg-white shadow-sm translate-x-0.5'
-                      : 'text-stone-500 hover:text-stone-900 hover:bg-stone-100'
-                  }`
-                }
-              >
-                {({ isActive }) => (
-                  <>
-                    <span
-                      className="material-symbols-outlined text-[20px]"
-                      style={isActive ? { fontVariationSettings: "'FILL' 1" } : undefined}
-                    >
-                      {item.icon}
-                    </span>
-                    <span>{item.label}</span>
-                  </>
-                )}
-              </NavLink>
-            )
-          )}
+          {NAV_ITEMS.map((item) => (
+            <NavLink
+              key={item.label}
+              to={item.to}
+              end={item.end}
+              className={({ isActive }) =>
+                `flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium tracking-wide transition-all duration-150 ${
+                  isActive
+                    ? 'text-amber-700 bg-white shadow-sm translate-x-0.5'
+                    : 'text-stone-500 hover:text-stone-900 hover:bg-stone-100'
+                }`
+              }
+            >
+              {({ isActive }) => (
+                <>
+                  <span
+                    className="material-symbols-outlined text-[20px]"
+                    style={isActive ? { fontVariationSettings: "'FILL' 1" } : undefined}
+                  >
+                    {item.icon}
+                  </span>
+                  <span>{item.label}</span>
+                </>
+              )}
+            </NavLink>
+          ))}
         </nav>
 
         <div className="mt-auto pt-4 border-t border-stone-200 space-y-1">

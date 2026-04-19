@@ -4,9 +4,9 @@ import { getMyProducts, createProduct, updateProduct } from '../../services/prod
 import type { Product, ProductStatus } from '../../types/product.types'
 
 const STATUS_CONFIG: Record<ProductStatus, { dot: string; label: string; text: string }> = {
-  APPROVED: { dot: 'bg-emerald-500', label: 'Approved', text: 'text-emerald-700' },
-  PENDING:  { dot: 'bg-amber-500',   label: 'Pending Review', text: 'text-amber-700' },
-  REJECTED: { dot: 'bg-red-500',     label: 'Rejected', text: 'text-red-600' },
+  DRAFT:    { dot: 'bg-stone-300',   label: 'Draft', text: 'text-stone-500' },
+  ACTIVE:   { dot: 'bg-emerald-500', label: 'Active', text: 'text-emerald-700' },
+  ARCHIVED: { dot: 'bg-stone-400',   label: 'Archived', text: 'text-stone-500' },
 }
 
 interface FormState {
@@ -101,8 +101,8 @@ export default function SellerProducts() {
     }
   }
 
-  const approved = products.filter((p) => p.status?.toUpperCase() === 'APPROVED').length
-  const pending = products.filter((p) => p.status?.toUpperCase() === 'PENDING').length
+  const approved = products.filter((p) => p.isApproved).length
+  const pending = products.filter((p) => !p.isApproved).length
 
   return (
     <div className="flex-1 flex flex-col min-h-screen bg-[#fbf9f9]">
@@ -361,8 +361,12 @@ export default function SellerProducts() {
 }
 
 function ProductRow({ product, onEdit }: { product: Product; onEdit: (p: Product) => void }) {
-  const statusKey = (product.status?.toUpperCase() as ProductStatus) ?? 'PENDING'
-  const { dot, label, text } = STATUS_CONFIG[statusKey] ?? STATUS_CONFIG['PENDING']
+  const approval = product.isApproved
+    ? { dot: 'bg-emerald-500', label: 'Approved', text: 'text-emerald-700' }
+    : { dot: 'bg-amber-500', label: 'Pending Review', text: 'text-amber-700' }
+  const statusKey = (product.status?.toUpperCase() as ProductStatus) ?? 'DRAFT'
+  const base = STATUS_CONFIG[statusKey] ?? STATUS_CONFIG['DRAFT']
+  const { dot, label, text } = product.isApproved !== undefined ? approval : base
   return (
     <tr className="hover:bg-stone-50/50 transition-colors group">
       <td className="px-8 py-6">

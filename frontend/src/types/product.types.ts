@@ -1,4 +1,4 @@
-export type ProductStatus = 'PENDING' | 'APPROVED' | 'REJECTED'
+export type ProductStatus = 'DRAFT' | 'ACTIVE' | 'ARCHIVED'
 
 export interface Product {
   id: string
@@ -8,6 +8,7 @@ export interface Product {
   price: number
   imageUrl: string | null
   status: ProductStatus
+  isApproved: boolean
   createdAt: string
   updatedAt: string
 }

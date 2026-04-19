@@ -9,6 +9,10 @@ import Orders from '../pages/Orders/Orders'
 import Profile from '../pages/Profile/Profile'
 import SellerPending from '../pages/Seller/SellerPending'
 import SellerLayout from '../layouts/SellerLayout'
+import SellerProducts from '../pages/Seller/SellerProducts'
+import SellerDrops from '../pages/Seller/SellerDrops'
+import SellerDropNew from '../pages/Seller/SellerDropNew'
+import SellerOrders from '../pages/Seller/SellerOrders'
 import { useAuthStore } from '../store/auth.store'
 import { getSellerProfile } from '../services/seller.service'
 import type { SellerStatus } from '../types/seller.types'
@@ -77,11 +81,11 @@ export default function AppRoutes() {
         element={<RequireApprovedSeller><SellerLayout /></RequireApprovedSeller>}
       >
         <Route index element={<ComingSoon label="Dashboard" />} />
-        <Route path="products" element={<ComingSoon label="Products" />} />
-        <Route path="drops" element={<ComingSoon label="Drops" />} />
-        <Route path="drops/new" element={<ComingSoon label="New Drop" />} />
+        <Route path="products" element={<SellerProducts />} />
+        <Route path="drops" element={<SellerDrops />} />
+        <Route path="drops/new" element={<SellerDropNew />} />
         <Route path="drops/:id/edit" element={<ComingSoon label="Edit Drop" />} />
-        <Route path="orders" element={<ComingSoon label="Orders" />} />
+        <Route path="orders" element={<SellerOrders />} />
       </Route>
 
       <Route path="*" element={<Navigate to="/" replace />} />
