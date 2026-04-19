@@ -9,7 +9,10 @@ export function useDropSocket(
 ) {
   const socketRef = useRef<Socket | null>(null)
   const onEventRef = useRef(onEvent)
-  onEventRef.current = onEvent
+
+  useEffect(() => {
+    onEventRef.current = onEvent
+  })
 
   useEffect(() => {
     if (!dropId) return
