@@ -18,6 +18,11 @@ const SELLER_LINKS: FooterLink[] = [
   { label: 'Verification', scrollId: 'sellers' },
 ]
 
+const ACCOUNT_LINKS = [
+  { label: 'My Orders', to: '/orders' },
+  { label: 'Profile', to: '/profile' },
+]
+
 const COMPANY_LINKS = ['About', 'FAQ', 'Terms', 'Privacy']
 
 function scrollOrNull(scrollId: string | undefined, isHome: boolean) {
@@ -43,7 +48,7 @@ export default function Footer() {
             </p>
           </div>
 
-          <div className="grid grid-cols-2 sm:grid-cols-3 gap-x-16 gap-y-8">
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-x-12 gap-y-8">
             <div>
               <p className="text-[10px] uppercase tracking-widest font-bold text-stone-950 mb-4">Shop</p>
               <ul className="space-y-3">
@@ -74,6 +79,19 @@ export default function Footer() {
                         {item.label}
                       </button>
                     )}
+                  </li>
+                ))}
+              </ul>
+            </div>
+
+            <div>
+              <p className="text-[10px] uppercase tracking-widest font-bold text-stone-950 mb-4">Account</p>
+              <ul className="space-y-3">
+                {ACCOUNT_LINKS.map(({ label, to }) => (
+                  <li key={label}>
+                    <Link to={to} className="text-sm text-stone-400 hover:text-stone-950 transition-colors">
+                      {label}
+                    </Link>
                   </li>
                 ))}
               </ul>

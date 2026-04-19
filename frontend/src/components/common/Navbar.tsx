@@ -54,10 +54,25 @@ export default function Navbar() {
           </div>
 
           <div className="flex items-center gap-4">
-            {user && (
-              <span className="hidden sm:block text-[11px] uppercase tracking-widest font-semibold text-stone-400">
-                {user.name.split(' ')[0]}
-              </span>
+            {user && user.role === 'CUSTOMER' && (
+              <>
+                <Link
+                  to="/orders"
+                  className={`hidden sm:block text-[11px] uppercase tracking-widest font-semibold transition-colors ${
+                    pathname === '/orders' ? 'text-stone-950' : 'text-stone-500 hover:text-stone-950'
+                  }`}
+                >
+                  Orders
+                </Link>
+                <Link
+                  to="/profile"
+                  className={`hidden sm:block text-[11px] uppercase tracking-widest font-semibold transition-colors ${
+                    pathname === '/profile' ? 'text-stone-950' : 'text-stone-500 hover:text-stone-950'
+                  }`}
+                >
+                  {user.name.split(' ')[0]}
+                </Link>
+              </>
             )}
             <button
               onClick={handleLogout}
