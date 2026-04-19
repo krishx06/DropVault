@@ -7,7 +7,11 @@ const SHOP_LINKS = [
   { label: 'All Drops', to: '/drops' },
 ]
 
-const SELLER_LINKS = [
+type FooterLink =
+  | { label: string; to: string }
+  | { label: string; scrollId: string }
+
+const SELLER_LINKS: FooterLink[] = [
   { label: 'Become a Seller', to: '/register' },
   { label: 'Seller Login', to: '/login' },
   { label: 'How It Works', scrollId: 'how-it-works' },
