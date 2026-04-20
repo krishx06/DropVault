@@ -13,6 +13,7 @@ import SellerProducts from '../pages/Seller/SellerProducts'
 import SellerDrops from '../pages/Seller/SellerDrops'
 import SellerDropNew from '../pages/Seller/SellerDropNew'
 import SellerOrders from '../pages/Seller/SellerOrders'
+import SellerDashboard from '../pages/Seller/SellerDashboard'
 import { useAuthStore } from '../store/auth.store'
 import { getSellerProfile } from '../services/seller.service'
 import type { SellerStatus } from '../types/seller.types'
@@ -80,7 +81,7 @@ export default function AppRoutes() {
         path="/seller"
         element={<RequireApprovedSeller><SellerLayout /></RequireApprovedSeller>}
       >
-        <Route index element={<ComingSoon label="Dashboard" />} />
+        <Route index element={<SellerDashboard />} />
         <Route path="products" element={<SellerProducts />} />
         <Route path="drops" element={<SellerDrops />} />
         <Route path="drops/new" element={<SellerDropNew />} />
