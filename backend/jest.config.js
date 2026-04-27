@@ -8,4 +8,9 @@ module.exports = {
   },
   setupFiles: ['<rootDir>/tests/setup.ts'],
   testMatch: ['**/?(*.)+(spec|test).[tj]s?(x)'],
+  globals: {
+    'ts-jest': {
+      tsconfig: 'tests/tsconfig.json',
+    },
+  },
 };
